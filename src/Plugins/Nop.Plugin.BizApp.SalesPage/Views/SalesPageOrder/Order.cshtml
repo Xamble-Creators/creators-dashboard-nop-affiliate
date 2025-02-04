@@ -1,0 +1,560 @@
+﻿@model SalesPageOrderModel
+
+@inject IWorkContext workContext;
+
+@{
+    Layout = "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@Model.PageName</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    @*Google Font*@
+    <!link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic" />
+
+    @* CSS resources *@
+    <link rel="stylesheet" href="~/lib_npm/jquery-ui-dist/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/lib_npm/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css" />
+    <link rel="stylesheet" href="~/lib_npm/@("@fortawesome")/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" href="~/lib_npm/admin-lte/css/adminlte.min.css" />
+    <link rel="stylesheet" href="~/css/admin/styles.css" />
+    <link rel="stylesheet" href="~/Plugins/BizApp.SalesPage/Contents/lib/tiny-slider/tiny-slider.min.css" />
+
+    <style>
+        .ico-help {
+            display: none;
+        }
+    </style>
+
+    @NopHtml.GenerateCssFiles()
+
+    @* scripts *@
+    <script asp-location="None" src="~/lib_npm/jquery/jquery.min.js"></script>
+    <script src="~/lib_npm/jquery-ui-dist/jquery-ui.min.js"></script>
+    <script src="~/lib_npm/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib_npm/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib_npm/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="~/lib_npm/jquery-migrate/jquery-migrate.min.js"></script>
+    <script src="~/Plugins/BizApp.SalesPage/Contents/lib/tiny-slider/tiny-slider.min.js"></script>
+
+    @NopHtml.GenerateScripts(ResourceLocation.Head)
+    @NopHtml.GenerateInlineScripts(ResourceLocation.Head)
+
+    @*Insert favicon and app icons head code*@
+    @await Component.InvokeAsync(typeof(FaviconViewComponent))
+
+    <style>
+        body {
+            margin-top: 2%;
+            margin-bottom: 2%;
+            padding-left: 8px;
+            padding-right: 8px;
+            background-image: url(/images/bg.webp)
+        }
+
+        .checkout .title, .products .title, .cart-summary .title {
+            font-weight: bold;
+        }
+
+        .products table {
+            width: 100%;
+        }
+
+        .products tr.has-item {
+            background-color: #d0e9c6;
+        }
+
+        .products table td {
+            padding: 10px 5px;
+            vertical-align: top;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .products .qty {
+            width: 80px;
+            display: inline;
+        }
+
+        .products {
+            font-size: 18px;
+        }
+
+            .products .product-img, .products .product-info {
+                display: inline-block;
+                vertical-align: top;
+                font-size: 16px;
+            }
+
+                .products .product-info table td {
+                    border-bottom: none;
+                    padding: 0;
+                }
+
+                .products .product-info table tr td:nth-child(2) {
+                    width: 10px;
+                    text-align: center;
+                }
+
+                .products .product-img img {
+                    max-width: 80px;
+                    max-height: 80px;
+                }
+
+            .products .product-img {
+                height: 80px;
+                max-height: 80px;
+                width: 100px;
+            }
+
+                .products .product-img .tns-slider {
+                    vertical-align: top;
+                }
+
+        .cart-summary .description {
+            font-size: 18px;
+        }
+
+        .cart-summary .btn-checkout {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+
+        .cart-summary table tr td:first-child {
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        .card-body img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+            object-position: bottom;
+        }
+
+        .validation-summary-errors ul {
+            list-style: none;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <form action="/@Model.UrlSlug" method="post">
+        <nop-antiforgery-token />
+
+        <div class="row">
+            <div class="col-md-8 offset-md-2 col-sm-10 offset-sm-1">
+                @Html.ValidationSummary(excludePropertyErrors: true)
+            </div>
+        </div>
+
+        <input asp-for="SalesPageRecordId" type="hidden" />
+        <input asp-for="AgentPId" type="hidden" />
+
+        <div class="row">
+            <div class="col-md-8 offset-md-2 col-sm-10 offset-sm-1">
+                <div class="cards-group">
+                    <div class="card card-default no-margin">
+                        <div class="card-body">
+                            @Html.Raw(Model.PageHtmlContent)
+                        </div>
+                    </div>
+                    <div class="card card-default no-margin products">
+                        <div class="card-body">
+                            <table>
+                                <tr style="border-bottom:1px solid #ccc;">
+                                    <th>Product</th>
+                                    <th class="text-center" style="width:150px;">Quantity</th>
+                                    <th class="text-right" style="width:100px;">Price (@((await workContext.GetWorkingCurrencyAsync()).CurrencyCode))</th>
+                                </tr>
+                                @{
+                                    var count = 0;
+                                    foreach (var product in Model.AvailableProducts)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="product-img">
+                                                    <div class="tiny-slider-@count">
+                                                        @foreach (var attachment in product.Attachments)
+                                                        {
+                                                            <div><img src="@attachment"></div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="product-info">
+                                                    <table>
+                                                        <tr>
+                                                            <td colspan="3">
+                                                                @product.ProductName
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                Quantity
+                                                            </td>
+                                                            <td>:</td>
+                                                            <td>
+                                                                @(product.StockQuantity == -100 ? "unlimited" : product.StockQuantity)
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="product-quantity">
+                                                    <select class="form-control qty text-center" id="@("ci_qty_" + product.ProductSku)" name="@("ci_qty_" + product.ProductSku)" data-sku="@product.ProductSku">
+                                                         @*for (var i = 0; i <= 100; i++)
+                                                         {
+                                                             <option value="@i">@i</option>
+                                                         }*@
+                                                        <option value="1">1</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td class="text-right">
+                                                <div class="product-item-total">
+                                                    <span class="item-total" data-item-total="@product.ProductSku">@(product.Price*i)</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                    }
+                                }
+                                <tr>
+                                    <td class="text-right">
+                                        Sub Total
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="total-item">0</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span class="subtotal">0.00</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card card-default no-margin checkout">
+                        <div class="card-body">
+                            <h4 class="title">Make Your Checkout Here</h4>
+                            <span>Please fill in the forms in order to proceed with checkout</span>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <nop-label asp-for="FullName" />
+                                        <nop-editor asp-for="FullName" />
+                                        <span asp-validation-for="FullName"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <nop-label asp-for="Email" />
+                                        <nop-editor asp-for="Email" />
+                                        <span asp-validation-for="Email"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <nop-label asp-for="PhoneNumber" />
+                                        <nop-editor asp-for="PhoneNumber" />
+                                        <span asp-validation-for="PhoneNumber"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                </div>
+                            </div>
+                            <script>
+                                $(document).ready(function () {
+                                    $("#@Html.IdFor(model => model.CountryId)").change(function () {
+                                        var selectedItem = $(this).val();
+                                        var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
+                                        $.ajax({
+                                            cache: false,
+                                            type: "GET",
+                                            url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+                                            data: {
+                                                "countryId": selectedItem
+                                            },
+                                            success: function (data, textStatus, jqXHR) {
+                                                ddlStates.html('');
+                                                $.each(data,
+                                                    function (id, option) {
+                                                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                                                    });
+
+                                                if (data.length > 1) {
+                                                    ddlStates.prepend($('<option></option>').val('0').html('@T("Plugins.BizApp.SalesPage.PleaseSelect")'));
+                                                    ddlStates.val('');
+                                                }
+
+                                                ddlStates.trigger('change');
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                console.log("error loading address");
+                                            }
+                                        });
+                                    });
+                                });
+                            </script>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <nop-label asp-for="Address1" />
+                                        <nop-editor asp-for="Address1" />
+                                        <span asp-validation-for="Address1"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <nop-label asp-for="Address2" />
+                                        <nop-editor asp-for="Address2" />
+                                        <span asp-validation-for="Address2"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <nop-label asp-for="ZipPostalCode" />
+                                        <nop-editor asp-for="ZipPostalCode" />
+                                        <span asp-validation-for="ZipPostalCode"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <nop-label asp-for="StateProvinceId" />
+                                        <nop-select asp-for="StateProvinceId" asp-items="Model.AvailableStates" />
+                                        <span asp-validation-for="StateProvinceId"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <nop-label asp-for="CountryId" />
+                                        <nop-select asp-for="CountryId" asp-items="Model.AvailableCountries" />
+                                        <span asp-validation-for="CountryId"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card card-default no-margin cart-summary">
+                        <div class="card-body">
+                            <h4 class="title">Cart Totals</h4>
+                            <div class="row">
+                                <div class="col-md-6 offset-md-3 col-sm-8 col-offset-2 description">
+                                    <table>
+                                        <tr>
+                                            <td>Sub Total</td>
+                                            <td>@((await workContext.GetWorkingCurrencyAsync()).CurrencyCode) <span class="subtotal">0.00</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Weight</td>
+                                            <td><span id="totalweight">0.00</span> g</td>
+                                        </tr>
+                                        @* <tr>
+                                            <td>Postage</td>
+                                            <td>
+                                                <div class="input-group-append">
+                                                    <nop-select asp-for="SelectedPostage" />
+                                                </div>
+                                            </td>
+                                        </tr> *@
+                                        <tr>
+                                            <td>Grand Total</td>
+                                            <td>@((await workContext.GetWorkingCurrencyAsync()).CurrencyCode) <span id="grandtotal">0.00</span></td>
+                                        </tr>
+                                    </table>
+                                    <div style="margin-top:30px;">
+                                        <button type="submit" class="btn btn-primary btn-checkout" disabled>PROCEED TO CHECKOUT</button>
+                                        <span id="javascript-enable-warning">Please enable javascript to proceed to checkout</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+    <script>
+        @for (var i = 0; i < Model.AvailableProducts.Count; i++)
+        {
+            <text>
+                tns({
+                    container: '.tiny-slider-@i',
+                    items: 1,
+                    slideBy: 'page',
+                    mouseDrag: true,
+                    autoplay: true,
+                    controls: false,
+                    gutter: 10,
+                    autoWidth: true,
+                    slideBy: 1,
+                    center: true,
+                    nav: false,
+                    autoplayButtonOutput: false,
+                    autoplayTimeout: 3000,
+                    autoplayHoverPause: true
+                });
+            </text>
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            $("#@Html.IdFor(model => model.PhoneNumber)").keypress(function (e) {
+                var charCode = (e.which) ? e.which : event.keyCode
+                if (String.fromCharCode(charCode).match(/[^0-9]/g))
+                    return false;
+            });
+
+            var postages = [
+        @foreach (var postage in Model.AvailablePostages)
+        {
+            <text>
+                    {
+                        id: '@postage.Id',
+                        name: '@postage.Name',
+                        price: @postage.Price,
+                        allowedStateIds: [@string.Join(",", postage.AllowedStateIds)],
+                        minimumWeight: @postage.MinimumWeight,
+                        maximumWeight: @postage.MaximumWeight },
+            </text>
+        }
+                                                                                                ];
+
+            var products = [
+        @foreach (var product in Model.AvailableProducts)
+        {
+            <text>
+                    {
+                        sku: '@product.ProductSku',
+                        price: @product.Price,
+                        weight: @product.Weight },
+            </text>
+        }
+                                                                                            ];
+
+            $("#@Html.IdFor(model => model.StateProvinceId)").change(function () {
+                updatePostage();
+            });
+
+            $("#@Html.IdFor(model => model.CountryId)").change(function () {
+                updatePostage();
+            });
+
+            function getProductBySku(sku) {
+                return products.filter(prd => {
+                    return prd.sku === sku
+                })[0];
+            }
+
+            function updatePostage() {
+                var totalWeight = 0;
+                $('.product-quantity .qty').each(function (i, e) {
+                    if (this.value != '') {
+                        var sku = $(this).attr('data-sku');
+                        var product = getProductBySku(sku);
+                        totalWeight += product.weight * parseFloat(this.value);
+                    }
+                });
+
+                $('#totalweight').html(totalWeight.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+                var ddlPostage = $("#@Html.IdFor(model => model.SelectedPostage)");
+                ddlPostage.html('');
+
+                if (totalWeight == 0) {
+                    ddlPostage.append($('<option></option>').val('').html('Please select product'));
+                    ddlPostage.trigger('change');
+                    return;
+                }
+
+                var validPostages = postages.filter(pst => {
+                    return pst.minimumWeight <= totalWeight && pst.maximumWeight >= totalWeight
+                        && pst.allowedStateIds.includes(parseInt($("#@Html.IdFor(model => model.StateProvinceId)").val()))
+                });
+                if (validPostages.length == 0) {
+                    ddlPostage.append($('<option></option>').val('').html('No postage available for address'));
+                }
+                else {
+                    $.each(validPostages,
+                        function (index, postage) {
+                            ddlPostage.append($('<option></option>').val(postage.id).html(postage.name));
+                        });
+                }
+
+                ddlPostage.trigger('change');
+            }
+
+            updatePostage();
+
+            $('.product-quantity .qty').on('change', function () {
+                updatePostage();
+            });
+
+            $("#@Html.IdFor(model => model.SelectedPostage)").change(function () {
+                reCalculateTotals();
+            });
+
+
+            function reCalculateTotals() {
+                var subTotal = 0;
+                var totalItem = 0;
+                $('.product-quantity .qty').each(function (i, e) {
+                    var sku = $(this).attr('data-sku');
+                    var itemSubtotal = 0;
+                    var quantity = parseFloat(this.value);
+                    if (this.value != '') {
+                        var product = getProductBySku(sku);
+                        itemSubtotal = product.price * quantity;
+                        subTotal += itemSubtotal;
+                        totalItem += quantity;
+                    }
+
+                    if (quantity > 0)
+                        $(this).closest('tr').addClass('has-item');
+                    else
+                        $(this).closest('tr').removeClass('has-item');
+
+                    $('[data-item-total="' + sku + '"]').html(itemSubtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                });
+
+                $('.total-item').html(totalItem);
+
+                $('.subtotal').html(subTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+                var postagePrice = 0;
+                var selectedPostage = postages.filter(pst => {
+                    return pst.id == $("#@Html.IdFor(model => model.SelectedPostage)").val()
+                });
+                if (selectedPostage.length > 0)
+                    var postagePrice = selectedPostage[0].price;
+
+                $('#grandtotal').html((subTotal + postagePrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            }
+
+            $('.btn-checkout').removeAttr('disabled');
+            $('#javascript-enable-warning').remove();
+        })
+    </script>
+
+    @if (!string.IsNullOrEmpty(Model.FailMessageKey))
+    {
+        if (Model.FailMessageKey == "payment.failed")
+        {
+            <script>
+                alert('Payment has failed. If you wish to try again, please fill in the information below and proceed to checkout again.');
+            </script>
+        }
+    }
+
+    @NopHtml.GenerateScripts(ResourceLocation.Footer)
+    @NopHtml.GenerateInlineScripts(ResourceLocation.Footer)
+</body>
+</html>

@@ -1,0 +1,30 @@
+﻿@model SalesPageRecordModel
+
+@{
+    const string hideInfoBlockAttributeName = "SalesPage.HideInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+    const string hideProductBlockAttributeName = "SalesPage.HideProductBlock";
+    var hideProductBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideProductBlockAttributeName);
+
+    const string hideSettingBlockAttributeName = "SalesPage.HideSettingBlock";
+    var hideSettingBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideSettingBlockAttributeName);
+
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="ImageKey" type="hidden" />
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <nop-cards id="salespage-cards">
+                <nop-card asp-name="salespage-info" asp-icon="fas fa-info" asp-title="@T("Plugins.BizApp.SalesPage.Info")" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock" asp-advanced="false">@await Html.PartialAsync("~/Plugins/BizApp.SalesPage/Views/SalesPageAdmin/_CreateOrUpdate.Info.cshtml", Model)</nop-card>
+                <nop-card asp-name="salespage-product" asp-icon="fas fa-box-open" asp-title="@T("Plugins.BizApp.SalesPage.Product")" asp-hide-block-attribute-name="@hideProductBlockAttributeName" asp-hide="@hideProductBlock" asp-advanced="false">@await Html.PartialAsync("~/Plugins/BizApp.SalesPage/Views/SalesPageAdmin/_CreateOrUpdate.Product.cshtml", Model)</nop-card>
+                <nop-card asp-name="salespage-setting" asp-icon="fas fa-cogs" asp-title="@T("Plugins.BizApp.SalesPage.Setting")" asp-hide-block-attribute-name="@hideSettingBlockAttributeName" asp-hide="@hideSettingBlock" asp-advanced="false">@await Html.PartialAsync("~/Plugins/BizApp.SalesPage/Views/SalesPageAdmin/_CreateOrUpdate.Setting.cshtml", Model)</nop-card>
+            </nop-cards>
+        </div>
+    </div>
+</section>

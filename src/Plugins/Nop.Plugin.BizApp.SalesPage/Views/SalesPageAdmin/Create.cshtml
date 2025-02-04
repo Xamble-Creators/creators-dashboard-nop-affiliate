@@ -1,0 +1,49 @@
+@model SalesPageRecordModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Plugins.BizApp.SalesPage.AddNew").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("BizApp SalesPage");
+}
+
+<style>
+    form .content {
+        padding-bottom: 0;
+    }
+</style>
+
+<form asp-controller="SalesPageAdmin" asp-action="Create" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Plugins.BizApp.SalesPage.AddNew")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List">@T("Plugins.BizApp.SalesPage.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+        </div>
+    </div>
+    @await Html.PartialAsync("~/Plugins/BizApp.SalesPage/Views/SalesPageAdmin/_CreateOrUpdate.cshtml", Model)
+    <div class="content-header clearfix">
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+        </div>
+    </div>
+</form>

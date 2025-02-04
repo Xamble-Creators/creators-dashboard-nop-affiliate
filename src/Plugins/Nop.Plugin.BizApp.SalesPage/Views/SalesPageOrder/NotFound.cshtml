@@ -1,0 +1,75 @@
+﻿@{
+    Layout = "";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BizApp</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    @*Google Font*@
+    <!link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic" />
+
+    @* CSS resources *@
+    <link rel="stylesheet" href="~/lib_npm/jquery-ui-dist/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/lib_npm/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css" />
+    <link rel="stylesheet" href="~/lib_npm/@("@fortawesome")/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" href="~/lib_npm/admin-lte/css/adminlte.min.css" />
+    <link rel="stylesheet" href="~/css/admin/styles.css" />
+    <link rel="stylesheet" href="~/Plugins/BizApp.SalesPage/Contents/lib/tiny-slider/tiny-slider.min.css" />
+
+    <style>
+        .ico-help {
+            display: none;
+        }
+    </style>
+
+    @NopHtml.GenerateCssFiles()
+
+    @* scripts *@
+    <script asp-location="None" src="~/lib_npm/jquery/jquery.min.js"></script>
+    <script src="~/lib_npm/jquery-ui-dist/jquery-ui.min.js"></script>
+    <script src="~/lib_npm/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib_npm/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib_npm/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="~/lib_npm/jquery-migrate/jquery-migrate.min.js"></script>
+    <script src="~/Plugins/BizApp.SalesPage/Contents/lib/tiny-slider/tiny-slider.min.js"></script>
+
+    @NopHtml.GenerateScripts(ResourceLocation.Head)
+    @NopHtml.GenerateInlineScripts(ResourceLocation.Head)
+
+    @*Insert favicon and app icons head code*@
+    @await Component.InvokeAsync(typeof(FaviconViewComponent))
+
+    <style>
+        body {
+            margin-top: 2%;
+            margin-bottom: 2%;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-8 offset-md-2 col-sm-10 offset-sm-1">
+            <div class="cards-group">
+                <div class="card card-default no-margin">
+                    <div class="card-body text-center">
+                        <img src="~/css/admin/images/logo-mini.png" alt="logo.png" style="max-width:250px;margin-bottom:30px;">
+                        <h2>Oops!! Page not found</h2>
+                        <p>We could not find the page you have requested</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @NopHtml.GenerateScripts(ResourceLocation.Footer)
+    @NopHtml.GenerateInlineScripts(ResourceLocation.Footer)
+</body>
+</html>

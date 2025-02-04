@@ -1,0 +1,66 @@
+﻿@model SalesPageRecordModel
+@inject IWebHelper webHelper
+
+<div class="card-body">
+
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="PageName" />
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="PageName" />
+            <span asp-validation-for="PageName"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="UrlSlug" />
+        </div>
+        <div class="col-md-9">
+            <div class="input-group">
+                <label class="col-form-label" for="UrlSlug" style="font-weight:normal;">@webHelper.GetStoreLocation()</label>
+                <div class="input-group-append">
+                    <nop-editor asp-for="UrlSlug" />
+                </div>
+                @if (!string.IsNullOrEmpty(Model.UrlSlug))
+                {
+                    <div class="input-group-append">
+                        <a target="_blank" class="btn btn-info" href="@(webHelper.GetStoreLocation() + Model.UrlSlug)">@T("Admin.Common.Preview")</a>
+                    </div>
+                }
+            </div>
+            <span asp-validation-for="UrlSlug"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="PageHtmlContent" />
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="PageHtmlContent" asp-template="RichEditor" />
+            <span asp-validation-for="PageHtmlContent"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.document.addEventListener('RoxyFilemanConfigLoaded', handleRoxyFilemanConfigLoadedEvent, false)
+    function handleRoxyFilemanConfigLoadedEvent(e) {
+        var roxyFilemanConf = e.detail;
+        roxyFilemanConf.COPYDIR = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/CopyDirectory";
+        roxyFilemanConf.COPYFILE = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/CopyFile";
+        roxyFilemanConf.CREATEDIR = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/CreateDirectory";
+        roxyFilemanConf.DELETEDIR = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/DeleteDirectory";
+        roxyFilemanConf.DELETEFILE = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/DeleteFile";
+        roxyFilemanConf.DIRLIST = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/DirectoriesList";
+        roxyFilemanConf.DOWNLOAD = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/DownloadFile";
+        roxyFilemanConf.DOWNLOADDIR = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/DownloadDirectory";
+        roxyFilemanConf.FILESLIST = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/FilesList";
+        roxyFilemanConf.GENERATETHUMB = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/CreateImageThumbnail";
+        roxyFilemanConf.MOVEDIR = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/MoveDirectory";
+        roxyFilemanConf.MOVEFILE = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/MoveFile";
+        roxyFilemanConf.RENAMEDIR = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/RenameDirectory";
+        roxyFilemanConf.RENAMEFILE = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/RenameFile";
+        roxyFilemanConf.UPLOAD = "/Admin/SalesPageRoxyFileman/@Model.ImageKey/UploadFiles";
+    }
+</script>

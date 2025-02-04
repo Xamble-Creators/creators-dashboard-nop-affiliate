@@ -1,0 +1,11 @@
+﻿{
+  "Group": "BizApp",
+  "FriendlyName": "BizAppPay",
+  "SystemName": "Payments.BizAppPay",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "BizApp team",
+  "DisplayOrder": 10,
+  "FileName": "Nop.Plugin.Payments.BizAppPay.dll",
+  "Description": "This plugin add bizAppPay customization for BizApp."
+}

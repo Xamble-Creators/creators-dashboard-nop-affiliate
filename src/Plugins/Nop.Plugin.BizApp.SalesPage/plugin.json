@@ -1,0 +1,11 @@
+﻿{
+  "Group": "BizApp",
+  "FriendlyName": "BizApp SalesPage",
+  "SystemName": "BizApp.SalesPage",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 10,
+  "FileName": "Nop.Plugin.BizApp.SalesPage.dll",
+  "Description": "This plugin add sales page customization for BizApp."
+}

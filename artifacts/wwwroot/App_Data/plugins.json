@@ -1,0 +1,86 @@
+﻿{
+  "InstalledPluginNames": [
+    "Obsolete field, using only for compatibility"
+  ],
+  "InstalledPlugins": [
+    {
+      "SystemName": "DiscountRequirement.MustBeAssignedToCustomerRole",
+      "Version": "1.40"
+    },
+    {
+      "SystemName": "Misc.WebApi.Frontend",
+      "Version": "1.00"
+    },
+    {
+      "SystemName": "MultiFactorAuth.GoogleAuthenticator",
+      "Version": "1.14"
+    },
+    {
+      "SystemName": "Payments.CheckMoneyOrder",
+      "Version": "1.51"
+    },
+    {
+      "SystemName": "Payments.Manual",
+      "Version": "1.60"
+    },
+    {
+      "SystemName": "Pickup.PickupInStore",
+      "Version": "1.47"
+    },
+    {
+      "SystemName": "Shipping.FixedByWeightByTotal",
+      "Version": "2.36"
+    },
+    {
+      "SystemName": "Tax.FixedOrByCountryStateZip",
+      "Version": "1.44"
+    },
+    {
+      "SystemName": "Widgets.FacebookPixel",
+      "Version": "2.02"
+    },
+    {
+      "SystemName": "Widgets.GoogleAnalytics",
+      "Version": "1.76"
+    },
+    {
+      "SystemName": "Widgets.NivoSlider",
+      "Version": "1.50"
+    },
+    {
+      "SystemName": "Widgets.What3words",
+      "Version": "1.03"
+    },
+    {
+      "SystemName": "ExternalAuth.Facebook",
+      "Version": "1.80"
+    },
+    {
+      "SystemName": "BizApp.Core",
+      "Version": "1.00"
+    },
+    {
+      "SystemName": "BizApp.Authentication",
+      "Version": "1.00"
+    },
+    {
+      "SystemName": "Payments.BizAppPay",
+      "Version": "1.00"
+    },
+    {
+      "SystemName": "BizApp.SalesPage",
+      "Version": "1.00"
+    }
+  ],
+  "PluginNamesToUninstall": [],
+  "PluginNamesToDelete": [
+    "CurrencyExchange.ECB",
+    "Misc.Sendinblue",
+    "Payments.PayPalCommerce",
+    "Misc.Zettle",
+    "Payments.CyberSource",
+    "Shipping.UPS",
+    "Widgets.AccessiBe"
+  ],
+  "PluginNamesToInstall": []
+}

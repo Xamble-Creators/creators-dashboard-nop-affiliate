@@ -1,0 +1,11 @@
+﻿{
+  "Group": "BizApp",
+  "FriendlyName": "BizApp Authentication",
+  "SystemName": "BizApp.Authentication",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "BizApp team",
+  "DisplayOrder": 10,
+  "FileName": "Nop.Plugin.BizApp.Authentication.dll",
+  "Description": "This plugin add authentication customization for BizApp."
+}

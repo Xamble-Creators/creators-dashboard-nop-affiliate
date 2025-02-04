@@ -1,0 +1,163 @@
+﻿@model SalesPageRecordSearchModel
+@inject IPermissionService permissionService
+
+@using Nop.Core.Domain.Media
+
+@inject MediaSettings _mediaSettings
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Plugins.BizApp.SalesPage.SalesPage").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("BizApp SalesPage");
+
+    var canManageUsers = await permissionService.AuthorizeAsync(SalesPagePermissionProvider.ManageBizAppUsers);
+}
+
+@{
+    const string hideSearchBlockAttributeName = "SalesPageListPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<form asp-controller="SalesPageAdmin" asp-action="List" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Plugins.BizApp.SalesPage.SalesPage")
+        </h1>
+        <div class="float-right">
+            @if (!canManageUsers)
+            {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus-square"></i>
+                @T("Admin.Common.AddNew")
+            </a>
+            }
+
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default card-search">
+                        <div class="card-body">
+                            <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                <div class="search-text">@T("Admin.Common.Search")</div>
+                                <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                            </div>
+                            <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="SearchPageName" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-editor asp-for="SearchPageName" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group row" @(!canManageUsers ? Html.Raw("style='display: none;'") : null)>
+                                            <div class="col-md-4">
+                                                <nop-label asp-for="CustomerId" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <nop-select asp-for="CustomerId" asp-items="Model.AvailableCustomers" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="text-center col-12">
+                                        <button type="button" id="search-salespages" class="btn btn-primary btn-search">
+                                            <i class="fas fa-search"></i>
+                                            @T("Admin.Common.Search")
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-default">
+                        <div class="card-body">
+                            @{
+                                var gridModel = new DataTablesModel
+            {
+                Name = "salespages-grid",
+                UrlRead = new DataUrl("SalesPageList", "SalesPageAdmin", null),
+                UrlDelete = new DataUrl("Delete", "SalesPageAdmin", null),
+                SearchButtonId = "search-salespages",
+                Length = Model.PageSize,
+                LengthMenu = Model.AvailablePageSizes,
+                Filters = new List<FilterParameter>
+                            {
+                            new FilterParameter(nameof(Model.SearchPageName)),
+                            new FilterParameter(nameof(Model.CustomerId)),
+                            }
+            };
+                                if (canManageUsers)
+                                {
+                                    gridModel.ColumnCollection.Add(new ColumnProperty(nameof(SalesPageRecordModel.CustomerName))
+                {
+                    Title = T("Plugins.BizApp.SalesPage.User").Text
+                });
+                                }
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(SalesPageRecordModel.PageName))
+            {
+                Title = T("Plugins.BizApp.SalesPage.PageName").Text
+            });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(SalesPageRecordModel.UrlSlug))
+            {
+                Title = T("Plugins.BizApp.SalesPage.UrlSlug").Text,
+                Render = new RenderCustom("renderFullUrl")
+            });
+
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(SalesPageRecordModel.CreatedOn))
+            {
+                Title = T("Admin.Orders.Fields.CreatedOn").Text,
+                Width = "90",
+                Render = new RenderDate()
+            });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(SalesPageRecordModel.Id))
+            {
+                Title = T("Admin.Common.Preview").Text,
+                Width = "110",
+                Render = new RenderCustom("renderPreview")
+            });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(SalesPageRecordModel.Id))
+            {
+                Title = T("Admin.Common.Edit").Text,
+                Width = "80",
+                ClassName = NopColumnClassDefaults.Button,
+                Render = new RenderButtonEdit(new DataUrl("Edit"))
+            });
+                                gridModel.ColumnCollection.Add(new ColumnProperty(nameof(SalesPageRecordModel.Id))
+            {
+                Title = T("Admin.Common.Delete").Text,
+                Width = "100",
+                ClassName = NopColumnClassDefaults.Button,
+                Render = new RenderButtonRemove(T("Admin.Common.Delete").Text)
+            });
+                            }
+                            @await Html.PartialAsync("Table", gridModel)
+                        </div>
+
+                        <script>
+                            function renderFullUrl(data, type, row, meta) {
+                                return row.StoreUrl + row.UrlSlug;
+                            }
+
+                            function renderPreview(data, type, row, meta) {
+                                return '<a class="btn btn-default" target="_blank" href="' + row.StoreUrl + row.UrlSlug + '"><i class="fas fa-eye"></i>@T("Admin.Common.Preview")</a>';
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

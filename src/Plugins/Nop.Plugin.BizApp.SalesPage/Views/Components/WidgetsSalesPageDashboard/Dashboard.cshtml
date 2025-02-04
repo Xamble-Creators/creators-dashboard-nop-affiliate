@@ -1,0 +1,84 @@
+﻿@model DashboardModel
+@inject IPermissionService permissionService
+@{
+    
+    var canManageSalesPageOrders = await permissionService.AuthorizeAsync(SalesPagePermissionProvider.ManageBizAppSalesPage);
+    var canManageUsers = await permissionService.AuthorizeAsync(SalesPagePermissionProvider.ManageBizAppUsers);
+}
+
+@if (canManageSalesPageOrders)
+{
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="card card-primary card-outline">
+                <div class="card-header with-border">
+                    <h3 class="card-title">
+                        @T("Plugins.BizApp.SalesPage.DashboardFor")
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group row" @(!canManageUsers ? Html.Raw("style='display: none;'") : null)>
+                        <div class="col-md-3">
+                            <nop-label asp-for="SelectedCustomerId" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-select asp-for="SelectedCustomerId" asp-items="Model.AvailableCustomers" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="SelectedSalesPageId" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-select asp-for="SelectedSalesPageId" asp-items="Model.AvailableSalesPages" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            @await Html.PartialAsync("~/Plugins/BizApp.SalesPage/Views/Components/WidgetsSalesPageDashboard/_SalesStatistics.cshtml")
+        </div>
+        <div class="col-md-6">
+            @await Html.PartialAsync("~/Plugins/BizApp.SalesPage/Views/Components/WidgetsSalesPageDashboard/_VisitStatistics.cshtml")
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#@Html.IdFor(model => model.SelectedCustomerId)").change(function () {
+                var selectedItem = $(this).val();
+                var ddlSalesPages = $("#@Html.IdFor(model => model.SelectedSalesPageId)");
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetSalesPageByCustomerId", "SalesPageDashboard", new { area = AreaNames.Admin }))",
+                    data: {
+                        "customerId": selectedItem
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        ddlSalesPages.html('');
+                        $.each(data,
+                            function (id, option) {
+                                ddlSalesPages.append($('<option></option>').val(option.id).html(option.name));
+                            });
+                        $(document).trigger('salespagechanged');
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        $("#salesPageAlert").click();
+                    }
+                });
+            });
+
+            $("#@Html.IdFor(model => model.SelectedSalesPageId)").change(function () {
+                $(document).trigger('salespagechanged');
+            })
+        });
+    </script>
+
+    <nop-alert asp-alert-id="salesPageAlert" asp-alert-message="@T("Plugins.BizApp.SalesPage.SalesPageFailedToLoad")" />
+}

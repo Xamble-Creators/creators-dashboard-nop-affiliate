@@ -1,0 +1,68 @@
+﻿@model SalesPageRecordModel
+
+<div class="card-body">
+
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="PaymentType" />
+        </div>
+        <div class="col-md-9">
+            <div class="raw">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="PaymentType" id="PaymentType_Fpx" value="@SalesPageDefaults.BizAppPaySystemName" @(Model.PaymentType == SalesPageDefaults.BizAppPaySystemName ? Html.Raw("checked") : null) disabled="disabled">
+                    <label class="form-check-label" for="PaymentType_Fpx">
+                        @T("Plugins.BizApp.SalesPage.Fpx")
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="EnableLinkAffiliate" />
+        </div>
+        <div class="col-md-9">
+            <div class="raw">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="EnableLinkAffiliate">
+                    <label class="form-check-label" for="EnableLinkAffiliate">
+                        @T("Plugins.BizApp.SalesPage.EnableLinkAffiliate")
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="ActivateSplitPaymentToAffiliate">
+                    <label class="form-check-label" for="ActivateSplitPaymentToAffiliate">
+                        @T("Plugins.BizApp.SalesPage.ActivateSplitPaymentToAffiliate")
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="NotificationToCustomerViaSms" />
+        </div>
+        <div class="col-md-9">
+            <div class="raw">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="NotificationToCustomerViaSms">
+                    <label class="form-check-label" for="NotificationToCustomerViaSms">
+                        @T("Plugins.BizApp.SalesPage.NotificationToCustomerViaSms")
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="NotificationToCustomerViaWhatsApp">
+                    <label class="form-check-label" for="NotificationToCustomerViaWhatsApp">
+                        @T("Plugins.BizApp.SalesPage.NotificationToCustomerViaWhatsApp")
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="NotificationToCustomerViaEmail">
+                    <label class="form-check-label" for="NotificationToCustomerViaEmail">
+                        @T("Plugins.BizApp.SalesPage.NotificationToCustomerViaEmail")
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

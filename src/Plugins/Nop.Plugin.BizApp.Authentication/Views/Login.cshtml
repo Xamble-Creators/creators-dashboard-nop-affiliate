@@ -1,0 +1,106 @@
+﻿@model LoginModel
+
+@{
+    Layout = "_AdminLayout";
+
+    var title = await NopHtml.GenerateTitleAsync();
+    ViewBag.PageTitle = await title.RenderHtmlContentAsync();
+}
+<style asp-location="Head">
+    aside {
+        display: none;
+    }
+
+    .navbar {
+        visibility: hidden;
+    }
+
+    .wrapper {
+        background: #ecf0f5;
+    }
+
+    body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .content-wrapper,
+    body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-footer,
+    body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-header {
+        margin-left: 0;
+    }
+
+    #login-form {
+        padding: 0 8px;
+    }
+
+    .validation-summary-errors > ul {
+        list-style: none;
+    }
+
+    @@media (max-width: 576px) {
+        #login-form .cards-group {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+    }
+
+    .responsive {
+        width: 100%;
+        height: auto;
+        max-width: 330px;
+    }
+</style>
+
+<form asp-controller="BizAppAuthentication" asp-action="Login" method="post" id="login-form">
+    <div class="row">
+        <div class="col-md-4 col-sm-3 col-xs-2">
+        </div>
+        <div class="col-md-4 col-sm-6 col-xs-8">
+            <div class="cards-group">
+                <div class="card card-default no-margin">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group text-center">
+                                    <img src="~/Plugins/BizApp.Authentication/logo.png" class="responsive" />
+                                </div>
+                                <div class="form-group text-center">
+                                    <div asp-validation-summary="All" class="message-error"></div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <nop-label asp-for="Username" />
+                                    </div>
+                                    <div class="col-md-9">
+                                        <nop-editor asp-for="Username" />
+                                        <span asp-validation-for="Username"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <nop-label asp-for="Password" />
+                                    </div>
+                                    <div class="col-md-9">
+                                        <nop-editor asp-for="Password" />
+                                        <span asp-validation-for="Password"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <nop-label asp-for="Domain" />
+                                    </div>
+                                    <div class="col-md-9">
+                                        <nop-editor asp-for="Domain" />
+                                        <span asp-validation-for="Domain"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group text-center">
+                                    <button type="submit" name="save" class="btn btn-primary">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        @T("Account.Login")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

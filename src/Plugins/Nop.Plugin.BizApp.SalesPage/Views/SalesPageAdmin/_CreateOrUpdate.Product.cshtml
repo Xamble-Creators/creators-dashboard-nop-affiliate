@@ -1,0 +1,34 @@
+﻿@model SalesPageRecordModel
+
+<div class="card-body">
+
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-label asp-for="SelectedProductSkus" />
+        </div>
+        <div class="col-md-9">
+            <nop-select asp-for="SelectedProductSkus" asp-items="Model.AvailableProductSkus" asp-multiple="true" />
+            <script>
+                $(document).ready(function () {
+                    var categoryIdsInput = $('#@Html.IdFor(model => model.SelectedProductSkus)').data("kendoMultiSelect");
+                    categoryIdsInput.setOptions({
+                        autoClose: false,
+                        filter: "contains"
+                    });
+
+                @if (Model.AvailableProductSkus.Count == 0)
+                {
+                    <text>
+                            categoryIdsInput.setOptions({
+                                enable: false,
+                                placeholder: '@T("Plugins.BizApp.SalesPage.NoProductsAvailable")'
+                            });
+                        categoryIdsInput._placeholder();
+                        categoryIdsInput._enable();
+                    </text>
+                }
+                });
+            </script>
+        </div>
+    </div>
+</div>
