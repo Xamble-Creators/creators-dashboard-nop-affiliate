@@ -192,32 +192,22 @@
                                                                 @product.ProductName
                                                             </td>
                                                         </tr>
-                                                        <tr>
-                                                            <td>
-                                                                Quantity
-                                                            </td>
-                                                            <td>:</td>
-                                                            <td>
-                                                                @(product.StockQuantity == -100 ? "unlimited" : product.StockQuantity)
-                                                            </td>
-                                                        </tr>
                                                     </table>
                                                 </div>
                                             </td>
                                             <td class="text-center">
                                                 <div class="product-quantity">
                                                     <select class="form-control qty text-center" id="@("ci_qty_" + product.ProductSku)" name="@("ci_qty_" + product.ProductSku)" data-sku="@product.ProductSku">
-                                                         @*for (var i = 0; i <= 100; i++)
+                                                         @for (var i = 0; i <= 100; i++)
                                                          {
                                                              <option value="@i">@i</option>
-                                                         }*@
-                                                        <option value="1">1</option>
+                                                         }
                                                     </select>
                                                 </div>
                                             </td>
                                             <td class="text-right">
                                                 <div class="product-item-total">
-                                                    <span class="item-total" data-item-total="@product.ProductSku">@(product.Price*i)</span>
+                                                    <span class="item-total" data-item-total="@product.ProductSku">@(Decimal.Round(product.Price,2))</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -351,7 +341,7 @@
                                         </tr>
                                         <tr>
                                             <td>Total Weight</td>
-                                            <td><span id="totalweight">0.00</span> g</td>
+                                            <td><span id="totalweight">100</span> g</td>
                                         </tr>
                                         @* <tr>
                                             <td>Postage</td>
@@ -496,6 +486,7 @@
 
             $('.product-quantity .qty').on('change', function () {
                 updatePostage();
+                reCalculateTotals();
             });
 
             $("#@Html.IdFor(model => model.SelectedPostage)").change(function () {

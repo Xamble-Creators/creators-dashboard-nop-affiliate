@@ -221,7 +221,9 @@ namespace Nop.Plugin.BizApp.SalesPage.Controllers
                         };
                         await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
 
-                        return Content(await _localizationService.GetResourceAsync("Checkout.RedirectMessage"));
+                        return RedirectToRoute("SalesPageThankYou", new { customOrderNumber = order.CustomOrderNumber });
+
+                        //return Content(await _localizationService.GetResourceAsync("Checkout.RedirectMessage"));
                     }
                     else
                     {

@@ -47,6 +47,7 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
         private readonly SalesPageRecordService _salesPageRecordService;
         private readonly IAddressService _addressService;
         private readonly IOrderService _orderService;
+        private readonly IRepository<Product> _productRepository;
         private readonly ICustomNumberFormatter _customNumberFormatter;
         private readonly IWorkContext _workContext;
         private readonly ICurrencyService _currencyService;
@@ -79,6 +80,7 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
             SalesPageRecordService salesPageRecordService,
             IAddressService addressService,
             IOrderService orderService,
+            IRepository<Product> productRepository,
             ICustomNumberFormatter customNumberFormatter,
             IWorkContext workContext,
             ICurrencyService currencyService,
@@ -106,6 +108,7 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
             _salesPageRecordService = salesPageRecordService;
             _addressService = addressService;
             _orderService = orderService;
+            _productRepository = productRepository;
             _customNumberFormatter = customNumberFormatter;
             _workContext = workContext;
             _currencyService = currencyService;
@@ -149,19 +152,19 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
 
             var salesPageRecordCustomer = await _customerService.GetCustomerByIdAsync(salesPageRecord.CustomerId);
 
-            var products = await _salesPageProductService.GetAllProductsAsync(salesPageRecordCustomer, placeOrderRequest.AgentPId);
+            var products = await _productRepository.Table.ToListAsync();
 
             foreach (var cartItem in placeOrderRequest.CartItems)
             {
-                var product = products.Products.First(x => x.ProductSku == cartItem.ProductSku);
-                if (product.StockBalance != -100 && product.StockBalance < cartItem.Quantity)
-                    throw new NopException($"{product.ProductName} only has {product.StockBalance} quantity left in stock");
+                var product = products.First(x => x.Sku == cartItem.ProductSku);
+                if (product.StockQuantity != -100 && product.StockQuantity < cartItem.Quantity)
+                    throw new NopException($"{product.Name} only has {product.StockQuantity} quantity left in stock");
             }
 
-            var postages = await _bizAppHttpClient.RequestAsync<GetPostageListRequest, PostageListResponse>(new GetPostageListRequest()
-            {
-                Customer = salesPageRecordCustomer
-            });
+            //var postages = await _bizAppHttpClient.RequestAsync<GetPostageListRequest, PostageListResponse>(new GetPostageListRequest()
+            //{
+            //    Customer = salesPageRecordCustomer
+            //});
 
             var shippingAddress = new Address()
             {
@@ -186,10 +189,10 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
 
             var store = await _storeContext.GetCurrentStoreAsync();
 
-            var subTotal = placeOrderRequest.CartItems.Sum(x => x.Quantity * products.Products.First(y => y.ProductSku == x.ProductSku).SellingPrice);
+            var subTotal = placeOrderRequest.CartItems.Sum(x => x.Quantity * products.First(y => y.Sku == x.ProductSku).Price);
 
-            var postage = postages.PostageList.FirstOrDefault(x => x.Id == placeOrderRequest.Postage);
-            var shippingTotal = postage?.Price ?? 0;
+            //var postage = postages.PostageList.FirstOrDefault(x => x.Id == placeOrderRequest.Postage);
+            var shippingTotal = 0;
 
             var grandTotal = subTotal + shippingTotal;
 
@@ -207,13 +210,13 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
                 OrderShippingInclTax = shippingTotal,
                 OrderShippingExclTax = shippingTotal,
                 OrderTotal = grandTotal,
-                OrderStatus = OrderStatus.Pending,
+                OrderStatus = OrderStatus.Processing,
                 PaymentMethodSystemName = await _genericAttributeService.GetAttributeAsync<string>(salesPageRecord, SalesPageDefaults.PaymentTypeAttribute),
-                PaymentStatus = PaymentStatus.Pending,
+                PaymentStatus = PaymentStatus.Paid,
                 PaidDateUtc = null,
                 ShippingStatus = ShippingStatus.ShippingNotRequired,
                 ShippingMethod = placeOrderRequest.Postage,
-                ShippingRateComputationMethodSystemName = postage?.PostageName,
+                ShippingRateComputationMethodSystemName = "Shipping.FixedByWeightByTotal",
                 CreatedOnUtc = DateTime.UtcNow,
                 CustomOrderNumber = string.Empty,
                 BillingAddressId = billingAddress.Id,
@@ -261,14 +264,13 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
             var salesPageOrderItems = placeOrderRequest.CartItems
                 .Select(x =>
                 {
-                    var product = products.Products.First(y => y.ProductSku == x.ProductSku);
+                    var product = products.First(y => y.Sku == x.ProductSku);
                     var salesPageOrderItem = new SalesPageOrderItem()
                     {
                         OrderId = order.Id,
                         Quantity = x.Quantity,
                         ProductSku = x.ProductSku,
-                        Price = product.SellingPrice,
-                        AgentPrice = product.AgentPrice
+                        Price = product.Price
                     };
                     salesPageOrderItem.TotalPrice = salesPageOrderItem.Price * salesPageOrderItem.Quantity;
                     salesPageOrderItem.TotalAgentPrice = salesPageOrderItem.AgentPrice * salesPageOrderItem.Quantity;
@@ -304,13 +306,13 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
             orderData.Email = shippingAddress.Email;
             orderData.PostageId = placeOrderRequest.Postage;
 
-            orderData.PostagePrice = postages.PostageList.FirstOrDefault(x => x.Id == placeOrderRequest.Postage)?.Price ?? 0;
+            orderData.PostagePrice = 0;
 
             orderData.OrderId = order.Id;
-            if (!string.IsNullOrEmpty(placeOrderRequest.AgentPId))
-                orderData.TotalAgentPrice = placeOrderRequest.CartItems
-                    .Sum(x => x.Quantity * products.Products.First(y => y.ProductSku == x.ProductSku)
-                .AgentPrice);
+            //if (!string.IsNullOrEmpty(placeOrderRequest.AgentPId))
+            //    orderData.TotalAgentPrice = placeOrderRequest.CartItems
+            //        .Sum(x => x.Quantity * products.First(y => y.Sku == x.ProductSku)
+            //    .AgentPrice);
             orderData.TotalPrice = order.OrderTotal;
 
             var paymentMethod = SalesPageDefaults.BizAppPay;
@@ -337,54 +339,54 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
                 }
             };
 
-            try
-            {
-                var orderResponse = await _bizAppHttpClient.RequestAsync<CreateOrderRequest, OrderResponse>(createOrderRequest);
+            //try
+            //{
+            //    var orderResponse = await _bizAppHttpClient.RequestAsync<CreateOrderRequest, OrderResponse>(createOrderRequest);
 
-                if (orderResponse.Success)
-                {
-                    await _orderService.InsertOrderNoteAsync(new OrderNote()
-                    {
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-                        Note = $"Successfully called BizApp CreateOrder Api with BizAppOrderId : {orderResponse.BizAppOrderId}"
-                    });
+            //    if (orderResponse.Success)
+            //    {
+            //        await _orderService.InsertOrderNoteAsync(new OrderNote()
+            //        {
+            //            CreatedOnUtc = DateTime.UtcNow,
+            //            OrderId = order.Id,
+            //            Note = $"Successfully called BizApp CreateOrder Api with BizAppOrderId : {orderResponse.BizAppOrderId}"
+            //        });
 
-                    salesPageOrder.BizAppOrderId = orderResponse.BizAppOrderId;
-                    salesPageOrder.FpxKey = orderResponse.FpxKey;
-                    salesPageOrder.TotalAgentPrice = orderResponse.TotalAgentPrice;
-                    salesPageOrder.AgentCommission = orderResponse.AgentCommission;
-                    await UpdateOrderAsync(salesPageOrder);
+            //        salesPageOrder.BizAppOrderId = orderResponse.BizAppOrderId;
+            //        salesPageOrder.FpxKey = orderResponse.FpxKey;
+            //        salesPageOrder.TotalAgentPrice = orderResponse.TotalAgentPrice;
+            //        salesPageOrder.AgentCommission = orderResponse.AgentCommission;
+            //        await UpdateOrderAsync(salesPageOrder);
 
-                    order.OrderTotal = orderResponse.TotalPrice;
-                    await _orderService.UpdateOrderAsync(order);
+            //        order.OrderTotal = orderResponse.TotalPrice;
+            //        await _orderService.UpdateOrderAsync(order);
 
-                    await _orderService.InsertOrderNoteAsync(new OrderNote()
-                    {
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-                        Note = $"Updated order total to {order.OrderTotal} and total agent price to {salesPageOrder.TotalAgentPrice} by api response"
-                    });
-                }
-                else
-                {
-                    await _orderService.InsertOrderNoteAsync(new OrderNote()
-                    {
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-                        Note = $"Failed to called BizApp CreateOrder Api with response : {JsonConvert.SerializeObject(orderResponse)}"
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                await _orderService.InsertOrderNoteAsync(new OrderNote()
-                {
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = order.Id,
-                    Note = $"Failed to called BizApp CreateOrder Api with request : {JsonConvert.SerializeObject(createOrderRequest)} and error message {ex.Message}"
-                });
-            }
+            //        await _orderService.InsertOrderNoteAsync(new OrderNote()
+            //        {
+            //            CreatedOnUtc = DateTime.UtcNow,
+            //            OrderId = order.Id,
+            //            Note = $"Updated order total to {order.OrderTotal} and total agent price to {salesPageOrder.TotalAgentPrice} by api response"
+            //        });
+            //    }
+            //    else
+            //    {
+            //        await _orderService.InsertOrderNoteAsync(new OrderNote()
+            //        {
+            //            CreatedOnUtc = DateTime.UtcNow,
+            //            OrderId = order.Id,
+            //            Note = $"Failed to called BizApp CreateOrder Api with response : {JsonConvert.SerializeObject(orderResponse)}"
+            //        });
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    await _orderService.InsertOrderNoteAsync(new OrderNote()
+            //    {
+            //        CreatedOnUtc = DateTime.UtcNow,
+            //        OrderId = order.Id,
+            //        Note = $"Failed to called BizApp CreateOrder Api with request : {JsonConvert.SerializeObject(createOrderRequest)} and error message {ex.Message}"
+            //    });
+            //}
 
             #endregion
 

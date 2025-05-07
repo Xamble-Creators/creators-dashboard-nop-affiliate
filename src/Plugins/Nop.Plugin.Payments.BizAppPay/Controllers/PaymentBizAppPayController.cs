@@ -186,10 +186,10 @@ namespace Nop.Plugin.Payments.BizAppPay.Controllers
 
         public async Task<IActionResult> PaymentRequest(string customOrderNumber)
         {
-            var processor = await _paymentPluginManager.LoadPluginBySystemNameAsync(BizAppPayPaymentDefaults.SYSTEM_NAME) as BizAppPayPaymentMethod;
-            if (processor == null ||
-                !_paymentPluginManager.IsPluginActive(processor) || !processor.PluginDescriptor.Installed)
-                throw new NopException("BizAppPay module cannot be loaded");
+            //var processor = await _paymentPluginManager.LoadPluginBySystemNameAsync(BizAppPayPaymentDefaults.SYSTEM_NAME) as BizAppPayPaymentMethod;
+            //if (processor == null ||
+            //    !_paymentPluginManager.IsPluginActive(processor) || !processor.PluginDescriptor.Installed)
+            //    throw new NopException("BizAppPay module cannot be loaded");
 
             var order = await _orderService.GetOrderByCustomOrderNumberAsync(customOrderNumber);
 
@@ -203,8 +203,9 @@ namespace Nop.Plugin.Payments.BizAppPay.Controllers
                 var amount = order.OrderTotal;
                 if (amount > 0)
                 {
-                    var paymentUrl = await processor
-                        .GetPaymentUrlAsync(await _localizationService.GetResourceAsync("Plugins.Payments.BizAppPay.ProductDescription"), order);
+                    var paymentUrl = "";
+                        //await processor
+                        //.GetPaymentUrlAsync(await _localizationService.GetResourceAsync("Plugins.Payments.BizAppPay.ProductDescription"), order);
                     return Redirect(paymentUrl);
                 }
                 else

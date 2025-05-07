@@ -85,14 +85,14 @@
 
                         <div class="card card-default no-margin">
                             <table cellpadding="0" cellspacing="0" style="width:100%;">
-                                <tr>
+                                @* <tr>
                                     <td>
                                         <span>@T("Plugins.BizApp.SalesPage.SalesPage")</span>
                                     </td>
                                     <td>
                                         <span class="order-value">@Model.SalesPageUrl</span>
                                     </td>
-                                </tr>
+                                </tr> *@
                                 <tr>
                                     <td>
                                         <span>@T("Account.CustomerOrders.OrderNumber")</span>
@@ -101,14 +101,14 @@
                                         <span class="order-value">@Model.CustomOrderNumber</span>
                                     </td>
                                 </tr>
-                                <tr>
+                               @*  <tr>
                                     <td>
                                         <span>@T("Plugins.BizApp.SalesPage.BizAppOrderId")</span>
                                     </td>
                                     <td>
                                         <span class="order-value">#@Model.BizAppOrderId</span>
                                     </td>
-                                </tr>
+                                </tr> *@
                                 <tr>
                                     <td>
                                         <span>@T("Plugins.BizApp.SalesPage.FullName")</span>
@@ -172,7 +172,7 @@
                                         <span>@T("Plugins.BizApp.SalesPage.Postage")</span>
                                     </td>
                                     <td>
-                                        <span class="order-value">@Model.ShippingRateComputationMethodSystemName (@Model.OrderShipping)</span>
+                                        <span class="order-value">Free Shipping (@Model.OrderShipping)</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -187,7 +187,7 @@
                         </div>
 
                         <button class="btn btn-primary" onclick="window.print();">Print Order Information</button><br/><br/>
-                        <a href="@Model.SalesPageUrl">Go To Salespage</a>
+                        <a href="@Model.SalesPageUrl">Purchase More</a>
                     </div>
                 </div>
             </div>

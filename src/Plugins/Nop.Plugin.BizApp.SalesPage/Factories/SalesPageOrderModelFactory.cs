@@ -4,10 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nop.Core;
+using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Orders;
+using Nop.Data;
 using Nop.Plugin.BizApp.Core.Services;
 using Nop.Plugin.BizApp.SalesPage.Domain;
 using Nop.Plugin.BizApp.SalesPage.Domain.Api;
@@ -52,6 +54,7 @@ namespace Nop.Plugin.BizApp.SalesPage.Factories
         private readonly ICurrencyService _currencyService;
         private readonly IProductService _productService;
         private readonly IPictureService _pictureService;
+        private readonly IRepository<Product> _productRepository;
 
         #endregion
 
@@ -79,7 +82,8 @@ namespace Nop.Plugin.BizApp.SalesPage.Factories
             AddressSettings addressSettings,
             ICurrencyService currencyService,
             IProductService productService,
-            IPictureService pictureService)
+            IPictureService pictureService,
+            IRepository<Product> productRepository)
         {
             _salesPageRecordService = salesPageRecordService;
             _salesPageOrderService = salesPageOrderService;
@@ -102,7 +106,8 @@ namespace Nop.Plugin.BizApp.SalesPage.Factories
             _addressSettings = addressSettings;
             _currencyService = currencyService;
             _productService = productService;
-            _pictureService = pictureService;   
+            _pictureService = pictureService;
+            _productRepository = productRepository;
         }
 
         #endregion
@@ -237,11 +242,11 @@ namespace Nop.Plugin.BizApp.SalesPage.Factories
 
             var orderShippingInclTaxInCustomerCurrency = _currencyService.ConvertCurrency(order.OrderShippingInclTax, order.CurrencyRate);
             model.ShippingRateComputationMethodSystemName = order.ShippingRateComputationMethodSystemName;
-            model.OrderShipping = await _priceFormatter.FormatShippingPriceAsync(orderShippingInclTaxInCustomerCurrency, true, order.CustomerCurrencyCode, languageId, true);
+            model.OrderShipping = await _priceFormatter.FormatShippingPriceAsync(orderShippingInclTaxInCustomerCurrency, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, languageId, true);
 
             //total
             var orderTotalInCustomerCurrency = _currencyService.ConvertCurrency(order.OrderTotal, order.CurrencyRate);
-            model.OrderTotal = await _priceFormatter.FormatPriceAsync(orderTotalInCustomerCurrency, true, order.CustomerCurrencyCode, false, languageId);
+            model.OrderTotal = await _priceFormatter.FormatPriceAsync(orderTotalInCustomerCurrency, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId);
 
             var salesPageOrder = await _salesPageOrderService.GetOrderByOrderIdAsync(order.Id);
             model.BizAppOrderId = salesPageOrder.BizAppOrderId;
@@ -256,15 +261,15 @@ namespace Nop.Plugin.BizApp.SalesPage.Factories
             var salesPageOwner = await _customerService.GetCustomerByIdAsync(salesPageRecord.CustomerId);
 
             var orderItems = await _salesPageOrderService.GetOrderItemsByOrderIdAsync(order.Id);
-            var products = await _salesPageProductService.GetAllProductsAsync(salesPageOwner, salesPageOrder.AgentPId);
+            var products = await _productRepository.Table.ToListAsync();
 
             model.Products = await orderItems.SelectAwait(async x => new OrderSummaryModel.OrderItemModel()
             {
-                Price = await _priceFormatter.FormatPriceAsync(x.Price, true, order.CustomerCurrencyCode, false, languageId),
+                Price = await _priceFormatter.FormatPriceAsync(x.Price, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId),
                 ProductSku = x.ProductSku,
                 Quantity = x.Quantity,
-                TotalPrice = await _priceFormatter.FormatPriceAsync(x.Price * x.Quantity, true, order.CustomerCurrencyCode, false, languageId),
-                ProductName = products.Products.FirstOrDefault(y => y.ProductSku == x.ProductSku)?.ProductName ?? x.ProductSku
+                TotalPrice = await _priceFormatter.FormatPriceAsync(x.Price * x.Quantity, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId),
+                ProductName = products.FirstOrDefault(y => y.Sku == x.ProductSku)?.Name ?? x.ProductSku
             }).ToListAsync();
 
             return model;

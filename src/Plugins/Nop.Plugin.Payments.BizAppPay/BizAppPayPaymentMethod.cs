@@ -344,7 +344,7 @@ namespace Nop.Plugin.Payments.BizAppPay
         {
             return await Task.FromResult(new ProcessPaymentResult()
             {
-                NewPaymentStatus = PaymentStatus.Pending
+                NewPaymentStatus = PaymentStatus.Paid
             });
         }
 
