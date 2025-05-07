@@ -190,11 +190,13 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
             var store = await _storeContext.GetCurrentStoreAsync();
 
             var subTotal = placeOrderRequest.CartItems.Sum(x => x.Quantity * products.First(y => y.Sku == x.ProductSku).Price);
+            var subTotalTax = subTotal * (decimal)0.08;
 
             //var postage = postages.PostageList.FirstOrDefault(x => x.Id == placeOrderRequest.Postage);
             var shippingTotal = 0;
+            var shippingTotalTax = 0 * (decimal)0.08;
 
-            var grandTotal = subTotal + shippingTotal;
+            var grandTotal = subTotal + subTotalTax + shippingTotal + shippingTotalTax;
 
             var order = new Order()
             {
@@ -203,11 +205,10 @@ namespace Nop.Plugin.BizApp.SalesPage.Services
                 CustomerId = placeOrderRequest.CustomerId,
                 CustomerTaxDisplayType = customer.TaxDisplayType ?? Nop.Core.Domain.Tax.TaxDisplayType.IncludingTax,
                 CustomerIp = _webHelper.GetCurrentIpAddress(),
-                OrderSubtotalInclTax = subTotal,
+                OrderSubtotalInclTax = subTotal + subTotalTax,
                 OrderSubtotalExclTax = subTotal,
-                OrderSubTotalDiscountInclTax = subTotal,
-                OrderSubTotalDiscountExclTax = subTotal,
-                OrderShippingInclTax = shippingTotal,
+                OrderTax = subTotalTax,
+                OrderShippingInclTax = shippingTotal + shippingTotalTax,
                 OrderShippingExclTax = shippingTotal,
                 OrderTotal = grandTotal,
                 OrderStatus = OrderStatus.Processing,

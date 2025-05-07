@@ -244,6 +244,11 @@ namespace Nop.Plugin.BizApp.SalesPage.Factories
             model.ShippingRateComputationMethodSystemName = order.ShippingRateComputationMethodSystemName;
             model.OrderShipping = await _priceFormatter.FormatShippingPriceAsync(orderShippingInclTaxInCustomerCurrency, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, languageId, true);
 
+            model.SubtotalPrice = await _priceFormatter.FormatPriceAsync(order.OrderSubtotalExclTax, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId);
+            model.Tax = await _priceFormatter.FormatPriceAsync(order.OrderTax, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId);
+            model.Shipping = await _priceFormatter.FormatPriceAsync(order.OrderShippingExclTax, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId);
+            model.ShippingTax = await _priceFormatter.FormatPriceAsync(order.OrderShippingInclTax - order.OrderShippingExclTax, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId);
+
             //total
             var orderTotalInCustomerCurrency = _currencyService.ConvertCurrency(order.OrderTotal, order.CurrencyRate);
             model.OrderTotal = await _priceFormatter.FormatPriceAsync(orderTotalInCustomerCurrency, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId);
@@ -268,7 +273,7 @@ namespace Nop.Plugin.BizApp.SalesPage.Factories
                 Price = await _priceFormatter.FormatPriceAsync(x.Price, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId),
                 ProductSku = x.ProductSku,
                 Quantity = x.Quantity,
-                TotalPrice = await _priceFormatter.FormatPriceAsync(x.Price * x.Quantity, true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId),
+                TotalPrice = await _priceFormatter.FormatPriceAsync((x.Price * x.Quantity * (decimal)1.08) + 0 + (0 * (decimal)0.08), true, (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode, false, languageId),
                 ProductName = products.FirstOrDefault(y => y.Sku == x.ProductSku)?.Name ?? x.ProductSku
             }).ToListAsync();
 

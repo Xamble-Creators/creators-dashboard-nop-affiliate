@@ -169,10 +169,34 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <span>@T("Plugins.BizApp.SalesPage.Postage")</span>
+                                        <span>Merchandise Subtotal</span>
+                                    </td>
+                                    <td>
+                                        <span class="order-value">@Model.SubtotalPrice</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span>SST (8%)</span>
+                                    </td>
+                                    <td>
+                                        <span class="order-value">@Model.Tax</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span>Shipping Subtotal</span>
                                     </td>
                                     <td>
                                         <span class="order-value">Free Shipping (@Model.OrderShipping)</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Shipping Fee SST (8%)
+                                    </td>
+                                    <td>
+                                        <span class="order-value">@Model.ShippingTax</span>
                                     </td>
                                 </tr>
                                 <tr>

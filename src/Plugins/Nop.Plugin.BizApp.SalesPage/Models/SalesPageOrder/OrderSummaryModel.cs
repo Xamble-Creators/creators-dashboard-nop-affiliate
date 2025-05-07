@@ -31,6 +31,14 @@ namespace Nop.Plugin.BizApp.SalesPage.Models.SalesPageOrder
 
         public string OrderShipping { get; set; }
 
+        public string SubtotalPrice { get; set; }
+
+        public string Tax { get; set; }
+
+        public string Shipping { get; set; }
+
+        public string ShippingTax { get; set; }
+
         public string OrderTotal { get; set; }
 
         public IList<OrderItemModel> Products { get; set; }
